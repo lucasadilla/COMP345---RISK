@@ -42,6 +42,8 @@ class Map {
         unordered_map<string, int> continents;
         // List of territories.
         vector<territoryNode> territoryNodes;
+        int armyCount;
+        int ownerID;
 
         bool territoriesConnected(const territoryNode& start, const territoryNode& target, const string requiredContinent = "", bool debug = false);
 };

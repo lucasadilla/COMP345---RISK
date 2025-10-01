@@ -19,6 +19,8 @@ Map::Map(string name, unordered_map<string, int> continents, const vector<territ
 {
     this->name = name;
     this->continents = continents;
+    this->armyCount = 0;
+    this->ownerID = -1;
     
     // Convert territories to territoryNodes and set up adjacency.
     // Start by creating all territoryNodes without adjacencies.
