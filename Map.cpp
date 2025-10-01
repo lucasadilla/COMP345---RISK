@@ -76,10 +76,26 @@ Map::Map(string name, unordered_map<string, int> continents, const vector<territ
     }
 }
 
+Map::Map(const Map& other) {
+    name = other.name;
+    continents = other.continents;
+    territoryNodes = other.territoryNodes;
+}
+
+Map& Map::operator=(const Map& other) {
+    if (this != &other) {
+        name = other.name;
+        continents = other.continents;
+        territoryNodes = other.territoryNodes;
+    }
+    return *this;
+}
+
 bool Map::validate() {
     // First validation: Ensure that the map is a connected graph.
     // From any starting territory, we should be able to reach all other territories.
     if (territoryNodes.empty()) {
+        cout << "Map validation failed: No territories in the map.\n";
         return false;
     }
 

@@ -13,12 +13,14 @@ using namespace std;
 class Map {
     // Constructor: Read a .map file and initialize the Map object.
     public:
+        // A territory as read from the map file. Adjacent territories are stored as names.
         struct territory {
             string name;
             string continent;
             vector<string> adjacentTerritories;
         };
 
+        // A territory node used internally in the Map class. Adjacent territories are stored as indices to other stored territoryNodes.
         struct territoryNode {
             string name;
             string continent;
@@ -27,6 +29,8 @@ class Map {
 
         Map();
         Map(string name, unordered_map<string, int> continents, vector<territory> territories);
+        Map(const Map& other);
+        Map& operator=(const Map& other);
 
         bool validate();
 
