@@ -43,6 +43,7 @@ class Map {
         // List of territories.
         vector<territoryNode> territoryNodes;
         int armyCount;
+        // TODO: Switch this with a Player reference.
         int ownerID;
 
         bool territoriesConnected(const territoryNode& start, const territoryNode& target, const string requiredContinent = "", bool debug = false);
