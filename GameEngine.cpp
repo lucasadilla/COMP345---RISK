@@ -1,10 +1,10 @@
 //
-// Created by Naathan on 2025-10-05.
+// Created by Nathan on 2025-10-05.
 //
 
 #include "GameEngine.h"
-
-#include "GameEngine.h"
+#include <string>
+#include <iostream>
 
 
 //transition table / transitions[current_state][command] = next_state
@@ -31,6 +31,32 @@ GameEngine::GameEngine() : current(State::Start)
     transition[State::Win]["play"] = State::Start;
     transition[State::Win]["end"] = State::Finished;
 }
+
+//copy constructor
+GameEngine::GameEngine(const GameEngine& other)
+{
+    current = other.current;
+    transition = other.transition; 
+}
+
+//assignment operator
+GameEngine& GameEngine::operator=(const GameEngine& other) 
+{
+    if (this != &other) 
+    { 
+        current = other.current;
+        transition = other.transition;
+    }
+    return *this;
+}
+
+//stream insertion operator
+std::ostream& operator<<(std::ostream& os, const GameEngine& g) 
+{
+    os << "GameEngine state: " << GameEngine::name(g.current);
+    return os;
+}
+
 
 //user feedback on input
 const char* GameEngine::name(State s) {
@@ -71,10 +97,12 @@ bool GameEngine::apply(const std::string& cmd) {
     return true;
 }
 
-//test function
-void GameEngine::testGameStates() {
-    std::cout << "Current state: " << name(current) << "\n";
-    while (current != State::Finished) 
+void testGameStates() {
+
+    GameEngine g;
+
+    std::cout << "Current state: " << GameEngine::name(g.state()) << "\n";
+    while (g.state() != State::Finished) 
     {
 
         std::cout << "Enter command: ";
@@ -90,13 +118,13 @@ void GameEngine::testGameStates() {
             continue;
         }
 
-        if (apply(cmd)) 
+        if (g.apply(cmd)) 
         {
-            std::cout << "OK -> " << name(current) << "\n";
+            std::cout << "OK -> " << GameEngine::name(g.state()) << "\n";
         }
         else 
         {
-            std::cout << "Invalid command from '" << name(current) << "': " << cmd << "\n";
+            std::cout << "Invalid command from '" << GameEngine::name(g.state()) << "': " << cmd << "\n";
         }
     }
     std::cout << "Reached 'finished'. Game end.\n";
