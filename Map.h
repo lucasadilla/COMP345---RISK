@@ -35,6 +35,9 @@ class Map {
         bool validate();
 
         string toString();
+
+        // ✅ Stream insertion operator (replaces toString)
+        friend ostream& operator<<(ostream& os, const Map& map);
         string getName() const { return name; }
     private:
         string name;

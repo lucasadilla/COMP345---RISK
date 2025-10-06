@@ -10,11 +10,13 @@
 #include <algorithm>
 using namespace std;
 
+//default constructor for Map
 Map::Map()
 {
     name = "Unnamed Map";
 }
 
+//parameterized constructor for Map
 Map::Map(string name, unordered_map<string, int> continents, const vector<territory> territories)
 {
     this->name = name;
@@ -78,12 +80,14 @@ Map::Map(string name, unordered_map<string, int> continents, const vector<territ
     }
 }
 
+//copy constructor for Map
 Map::Map(const Map& other) {
     name = other.name;
     continents = other.continents;
     territoryNodes = other.territoryNodes;
 }
 
+//assignment operator for Map
 Map& Map::operator=(const Map& other) {
     if (this != &other) {
         name = other.name;
@@ -229,3 +233,30 @@ string Map::toString() {
     }
     return result;
 }
+
+//stream insertion operator
+ostream& operator<<(ostream& os, const Map& map) {
+    os << "Map Name: " << map.name << "\n";
+    os << "Continents:\n";
+    for (auto const& [key, val] : map.continents) {
+        os << " - " << key << ": Control Value " << val << "\n";
+    }
+    os << "Territories:\n";
+    for (const auto& terr : map.territoryNodes) {
+        os << " - " << terr.name << " (Continent: " << terr.continent << ")\n";
+        os << "   Adjacent Territories: ";
+        if (terr.adjacentIndices.empty()) {
+            os << "(none)";
+        } else {
+            for (size_t i = 0; i < terr.adjacentIndices.size(); ++i) {
+                os << map.territoryNodes[terr.adjacentIndices[i]].name;
+                if (i + 1 < terr.adjacentIndices.size())
+                    os << ", ";
+            }
+        }
+        os << "\n";
+    }
+    return os;
+}
+
+

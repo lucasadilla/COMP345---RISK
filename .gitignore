@@ -1,1 +1,29 @@
 /.vs
+
+# === CMake build folders ===
+cmake-build-debug/
+cmake-build-release/
+CMakeFiles/
+CMakeCache.txt
+CMakeScripts/
+Makefile
+*.cmake
+install_manifest.txt
+compile_commands.json
+
+# === Build outputs ===
+*.exe
+*.dll
+*.lib
+*.a
+*.so
+*.o
+*.obj
+*.pdb
+*.ilk
+*.manifest
+*.exp
+
+# === IDE-specific (CLion / IntelliJ) ===
+.idea/
+*.iml

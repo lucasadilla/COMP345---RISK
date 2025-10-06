@@ -1,13 +1,18 @@
 #include "Cards.h"
+#include "Player.h"
+#include <iostream>
 
 using namespace std;
 
+//parameterized constructor for Card
 Card::Card(const string& t)
 : type(new string(CardsUtil::normalizeType(t))) {}
 
+//copy constructor for Card
 Card::Card(const Card& other)
 : type(new string(*other.type)) {}
 
+//assignment operator for Card
 Card& Card::operator=(const Card& other) {
     if (this != &other) {
         *type = *other.type;
@@ -15,10 +20,12 @@ Card& Card::operator=(const Card& other) {
     return *this;
 }
 
+//deconstructor for Card
 Card::~Card() {
     delete type;
 }
 
+//getters for Card
 const string& Card::getType() const {
     return *type;
 }
@@ -37,7 +44,19 @@ void Card::play(Player* p, Deck* d, Hand* h) {
     else if (*type == "diplomacy") orderDesc = "Negotiate/Diplomacy order created by card.";
     else orderDesc = "Generic order created by card.";
 
-    p->addOrder(new Order(orderDesc));
+    if (*type == "bomb")
+        p->issueOrder(new Bomb("EnemyTerritory"));
+    else if (*type == "reinforcement")
+        p->issueOrder(new Deploy(5, "MyTerritory"));
+    else if (*type == "blockade")
+        p->issueOrder(new Blockade("MyTerritory"));
+    else if (*type == "airlift")
+        p->issueOrder(new Airlift(3, "Source", "Target"));
+    else if (*type == "diplomacy")
+        p->issueOrder(new Negotiate("TargetPlayer"));
+    else
+        p->issueOrder(new Advance(2, "Source", "Target"));
+
     h->removeCard(this);
     d->returnCard(this);
 
@@ -162,45 +181,6 @@ ostream& operator<<(ostream& os, const Hand& h) {
         if (i + 1 < h.cards->size()) os << ", ";
     }
     os << "]";
-    return os;
-}
-
-Player::Player(const string& n)
-: name(new string(n)), orders(new vector<Order*>) {}
-
-Player::Player(const Player& other)
-: name(new string(*other.name)), orders(new vector<Order*>) {
-    for (const auto* o : *other.orders) {
-        orders->push_back(new Order(*o));
-    }
-}
-
-Player& Player::operator=(const Player& other) {
-    if (this != &other) {
-        *name = *other.name;
-        for (auto* o : *orders) delete o;
-        orders->clear();
-        for (const auto* o : *other.orders) {
-            orders->push_back(new Order(*o));
-        }
-    }
-    return *this;
-}
-
-Player::~Player() {
-    for (auto* o : *orders) delete o;
-    delete orders;
-    delete name;
-}
-
-void Player::addOrder(Order* o) {
-    if (!o) return;
-    orders->push_back(o);
-    cout << "[Player] Added " << *o << ". Total orders: " << orders->size() << "\n";
-}
-
-ostream& operator<<(ostream& os, const Player& p) {
-    os << "Player(" << *p.name << ", orders=" << p.orders->size() << ")";
     return os;
 }
 

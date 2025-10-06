@@ -24,8 +24,8 @@ Map testLoadMaps(string filepath)
 
 int main() {
     // Test loading a map.
-    Map map = testLoadMaps("Maps/Invalid 3.map");
-    cout << map.toString() << endl;
+    Map map = testLoadMaps("Maps/Americas 1792.map");
+    cout << map << endl;
     bool valid = map.validate();
     cout << "Map is " << (valid ? "valid" : "invalid") << ".\n";
     return 0;

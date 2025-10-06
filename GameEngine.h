@@ -22,22 +22,23 @@ enum class State {
 };
 
 class GameEngine {
-public:
-    GameEngine();
-    GameEngine(const GameEngine& other);    //copy
-    GameEngine& operator=(const GameEngine& other); //assignment operator  
-    friend std::ostream& operator<<(std::ostream& os, const GameEngine& g);  //stream insertion
+    public:
 
-    static const char* name(State s);
+        GameEngine();   //default constructor
+        GameEngine(const GameEngine& other);    //copy constructor
+        GameEngine& operator=(const GameEngine& other); //assignment operator
+        friend std::ostream& operator<<(std::ostream& os, const GameEngine& g);  //stream insertion operator
 
-    bool apply(const std::string& cmd); // returns true if transition happened
-    State state() const { return current; }
+        static const char* name(State s);
 
-private:
-    State current;
-    
-    // transitions[current_state][command] = next_state
-    std::unordered_map<State,std::unordered_map<std::string, State>> transition;
+        bool apply(const std::string& cmd); // returns true if transition happened
+        State state() const { return current; }
+
+    private:
+        State current;
+
+        // transitions[current_state][command] = next_state
+        std::unordered_map<State,std::unordered_map<std::string, State>> transition;
 
 };
 

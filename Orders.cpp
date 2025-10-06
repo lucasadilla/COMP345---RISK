@@ -4,32 +4,25 @@
 #include <sstream>
 
 
-
-
+//default constructor for Order
 Order::Order() {
     executed = new bool(false);
     effect = new std::string("");
 }
 
-/**
- * copy constructor for Order
- */
+//copy constructor for Order
 Order::Order(const Order& other) {
     executed = new bool(*(other.executed));
     effect = new std::string(*(other.effect));
 }
 
-/**
- * Destructor for Order
- */
+//destructor for Order
 Order::~Order() {
     delete executed;
     delete effect;
 }
 
-/**
- * assignment operator for Order
- */
+//assignment operator for Order
 Order& Order::operator=(const Order& other) {
     if (this != &other) {
         delete executed;
@@ -41,23 +34,17 @@ Order& Order::operator=(const Order& other) {
     return *this;
 }
 
-/**
- * check if order has been executed
- */
+//check if order has been executed
 bool Order::isExecuted() const {
     return *executed;
 }
 
-/**
- * get the effect of the order
- */
+//get the effect of the order
 std::string Order::getEffect() const {
     return *effect;
 }
 
-/**
- * stream insertion operator for Order
- */
+//stream insertion operator for Order
 std::ostream& operator<<(std::ostream& os, const Order& order) {
     os << order.getDescription();
     if (order.isExecuted() && !order.getEffect().empty()) {
@@ -66,43 +53,36 @@ std::ostream& operator<<(std::ostream& os, const Order& order) {
     return os;
 }
 
+
+
+
 // DEPLOY ORDER IMPLEMENTATION
 
-/**
- * default constructor for Deploy
- */
+//default constructor for Deploy
 Deploy::Deploy() : Order() {
     armyUnits = new int(0);
     targetTerritory = new std::string("");
 }
 
-/**
- * parameterized constructor for Deploy
- */
+//parameterized constructor for Deploy
 Deploy::Deploy(int armies, const std::string& territory) : Order() {
     armyUnits = new int(armies);
     targetTerritory = new std::string(territory);
 }
 
-/**
- * copy constructor for Deploy
- */
+//copy constructor for Deploy
 Deploy::Deploy(const Deploy& other) : Order(other) {
     armyUnits = new int(*(other.armyUnits));
     targetTerritory = new std::string(*(other.targetTerritory));
 }
 
-/**
- * destructor for Deploy
- */
+//destructor for Deploy
 Deploy::~Deploy() {
     delete armyUnits;
     delete targetTerritory;
 }
 
-/**
- * assignment operator for Deploy
- */
+//assignment operator for Deploy
 Deploy& Deploy::operator=(const Deploy& other) {
     if (this != &other) {
         Order::operator=(other);
@@ -116,18 +96,14 @@ Deploy& Deploy::operator=(const Deploy& other) {
     return *this;
 }
 
-/**
- * validate Deploy order, basic validation as per assignment requirements
- */
+//validate Deploy order, basic validation
 bool Deploy::validate() {
     if (*armyUnits <= 0) return false;        // must deploy positive armies
     if (targetTerritory->empty()) return false; // must specify target territory
     return true;
 }
 
-/**
- * execute Deploy order
- */
+//execute Deploy order
 void Deploy::execute() {
     if (validate()) {
         std::ostringstream oss;
@@ -140,77 +116,62 @@ void Deploy::execute() {
     }
 }
 
-/**
- * clone Deploy order for deep copying
- */
+//clone Deploy order for deep copying
 Order* Deploy::clone() const {
     return new Deploy(*this);
 }
 
-/**
- * get description of Deploy order
- */
+//get description of Deploy order
 std::string Deploy::getDescription() const {
     std::ostringstream oss;
     oss << "Deploy Order: " << *armyUnits << " army units to " << *targetTerritory;
     return oss.str();
 }
 
-/**
- * get army units for Deploy order
- */
+//get army units for Deploy order
 int Deploy::getArmyUnits() const {
     return *armyUnits;
 }
 
-/**
- * get target territory for Deploy order
- */
+//get target territory for Deploy order
 std::string Deploy::getTargetTerritory() const {
     return *targetTerritory;
 }
 
+
+
+
 // ADVANCE ORDER IMPLEMENTATION
 
-/**
- * default constructor for Advance
- */
+//default constructor for Advance
 Advance::Advance() : Order() {
     armyUnits = new int(0);
     sourceTerritory = new std::string("");
     targetTerritory = new std::string("");
 }
 
-/**
- * parameterized constructor for Advance
- */
+//parameterized constructor for Advance
 Advance::Advance(int armies, const std::string& source, const std::string& target) : Order() {
     armyUnits = new int(armies);
     sourceTerritory = new std::string(source);
     targetTerritory = new std::string(target);
 }
 
-/**
- * copy constructor for Advance
- */
+//copy constructor for Advance
 Advance::Advance(const Advance& other) : Order(other) {
     armyUnits = new int(*(other.armyUnits));
     sourceTerritory = new std::string(*(other.sourceTerritory));
     targetTerritory = new std::string(*(other.targetTerritory));
 }
 
-/**
- * destructor for Advance
- */
+//destructor for Advance
 Advance::~Advance() {
     delete armyUnits;
     delete sourceTerritory;
     delete targetTerritory;
 }
 
-/**
- * assignment operator for Advance
- */
+//assignment operator for Advance
 Advance& Advance::operator=(const Advance& other) {
     if (this != &other) {
         Order::operator=(other);
@@ -226,9 +187,7 @@ Advance& Advance::operator=(const Advance& other) {
     return *this;
 }
 
-/**
- * validate Advance order
- */
+//validate Advance order
 bool Advance::validate() {
     if (*armyUnits <= 0) return false;
     if (sourceTerritory->empty() || targetTerritory->empty()) return false;
@@ -236,9 +195,7 @@ bool Advance::validate() {
     return true;
 }
 
-/**
- * execute Advance order
- */
+//execute Advance order
 void Advance::execute() {
     if (validate()) {
         std::ostringstream oss;
@@ -252,16 +209,12 @@ void Advance::execute() {
     }
 }
 
-/**
- * clone Advance order
- */
+//clone Advance order
 Order* Advance::clone() const {
     return new Advance(*this);
 }
 
-/**
- * get description of Advance order
- */
+//get description of Advance order
 std::string Advance::getDescription() const {
     std::ostringstream oss;
     oss << "Advance Order: " << *armyUnits << " army units from " << *sourceTerritory
@@ -269,43 +222,37 @@ std::string Advance::getDescription() const {
     return oss.str();
 }
 
+//getters of Advance
 int Advance::getArmyUnits() const { return *armyUnits; }
 std::string Advance::getSourceTerritory() const { return *sourceTerritory; }
 std::string Advance::getTargetTerritory() const { return *targetTerritory; }
 
+
+
+
 // BOMB ORDER IMPLEMENTATION
 
-/**
- * default constructor for Bomb
- */
+//default constructor for Bomb
 Bomb::Bomb() : Order() {
     targetTerritory = new std::string("");
 }
 
-/**
- * parameterized constructor for Bomb
- */
+//parameterized constructor for Bomb
 Bomb::Bomb(const std::string& territory) : Order() {
     targetTerritory = new std::string(territory);
 }
 
-/**
- * copy constructor for Bomb
- */
+//copy constructor for Bomb
 Bomb::Bomb(const Bomb& other) : Order(other) {
     targetTerritory = new std::string(*(other.targetTerritory));
 }
 
-/**
- * destructor for Bomb
- */
+//destructor for Bomb
 Bomb::~Bomb() {
     delete targetTerritory;
 }
 
-/**
- * assignment operator for Bomb
- */
+//assignment operator for Bomb
 Bomb& Bomb::operator=(const Bomb& other) {
     if (this != &other) {
         Order::operator=(other);
@@ -315,17 +262,13 @@ Bomb& Bomb::operator=(const Bomb& other) {
     return *this;
 }
 
-/**
- * validate Bomb order
- */
+//validate Bomb order
 bool Bomb::validate() {
     if (targetTerritory->empty()) return false;
     return true;
 }
 
-/**
- * execute Bomb order
- */
+//execute Bomb order
 void Bomb::execute() {
     if (validate()) {
         std::ostringstream oss;
@@ -338,55 +281,46 @@ void Bomb::execute() {
     }
 }
 
-/**
- * clone Bomb order
- */
+//clone Bomb order
 Order* Bomb::clone() const {
     return new Bomb(*this);
 }
 
-/**
- * get description of Bomb order
- */
+//get description of Bomb order
 std::string Bomb::getDescription() const {
     std::ostringstream oss;
     oss << "Bomb Order: target territory " << *targetTerritory;
     return oss.str();
 }
 
+//getters for Bomb
 std::string Bomb::getTargetTerritory() const { return *targetTerritory; }
 
-// BLOCKADE ORDER IMPLEMENTATION
 
+
+
+// BLOCKADE ORDER IMPLEMENTATION
 
 Blockade::Blockade() : Order() {
     targetTerritory = new std::string("");
 }
 
-/**
- * parameterized constructor for Blockade
- */
+//parameterized constructor for Blockade
 Blockade::Blockade(const std::string& territory) : Order() {
     targetTerritory = new std::string(territory);
 }
 
-/**
- * copy constructor for Blockade
- */
+//copy constructor for Blockade
 Blockade::Blockade(const Blockade& other) : Order(other) {
     targetTerritory = new std::string(*(other.targetTerritory));
 }
 
-/**
- * destructor for Blockade
- */
+//destructor for Blockade
 Blockade::~Blockade() {
     delete targetTerritory;
 }
 
-/**
- * assignment operator for Blockade
- */
+//assignment operator for Blockade
 Blockade& Blockade::operator=(const Blockade& other) {
     if (this != &other) {
         Order::operator=(other);
@@ -396,17 +330,13 @@ Blockade& Blockade::operator=(const Blockade& other) {
     return *this;
 }
 
-/**
- * validate Blockade order
- */
+//validate Blockade order
 bool Blockade::validate() {
     if (targetTerritory->empty()) return false;
     return true;
 }
 
-/**
- * execute Blockade order
- */
+//execute Blockade order
 void Blockade::execute() {
     if (validate()) {
         std::ostringstream oss;
@@ -420,64 +350,55 @@ void Blockade::execute() {
     }
 }
 
-/**
- * clone Blockade order
- */
+//clone Blockade order
 Order* Blockade::clone() const {
     return new Blockade(*this);
 }
 
-/**
- * get description of Blockade order
- */
+//get description of Blockade order
 std::string Blockade::getDescription() const {
     std::ostringstream oss;
     oss << "Blockade Order: target territory " << *targetTerritory;
     return oss.str();
 }
 
+//getters for Blockade
 std::string Blockade::getTargetTerritory() const { return *targetTerritory; }
+
+
+
 
 // AIRLIFT ORDER IMPLEMENTATION
 
-
-
+//default constructor for Airlift
 Airlift::Airlift() : Order() {
     armyUnits = new int(0);
     sourceTerritory = new std::string("");
     targetTerritory = new std::string("");
 }
 
-/**
- * parameterized constructor for Airlift
- */
+//parameterized constructor for Airlift
 Airlift::Airlift(int armies, const std::string& source, const std::string& target) : Order() {
     armyUnits = new int(armies);
     sourceTerritory = new std::string(source);
     targetTerritory = new std::string(target);
 }
 
-/**
- * copy constructor for Airlift
- */
+//copy constructor for Airlift
 Airlift::Airlift(const Airlift& other) : Order(other) {
     armyUnits = new int(*(other.armyUnits));
     sourceTerritory = new std::string(*(other.sourceTerritory));
     targetTerritory = new std::string(*(other.targetTerritory));
 }
 
-/**
- * destructor for Airlift
- */
+//destructor for Airlift
 Airlift::~Airlift() {
     delete armyUnits;
     delete sourceTerritory;
     delete targetTerritory;
 }
 
-/**
- * assignment operator for Airlift
- */
+//assignment operator for Airlift
 Airlift& Airlift::operator=(const Airlift& other) {
     if (this != &other) {
         Order::operator=(other);
@@ -493,9 +414,7 @@ Airlift& Airlift::operator=(const Airlift& other) {
     return *this;
 }
 
-/**
- * validate Airlift order
- */
+//validate Airlift order
 bool Airlift::validate() {
     if (*armyUnits <= 0) return false;
     if (sourceTerritory->empty() || targetTerritory->empty()) return false;
@@ -503,9 +422,7 @@ bool Airlift::validate() {
     return true;
 }
 
-/**
- * execute Airlift order
- */
+//execute Airlift order
 void Airlift::execute() {
     if (validate()) {
         std::ostringstream oss;
@@ -519,16 +436,12 @@ void Airlift::execute() {
     }
 }
 
-/**
- * clone Airlift order
- */
+//clone Airlift order
 Order* Airlift::clone() const {
     return new Airlift(*this);
 }
 
-/**
- * get description of Airlift order
- */
+//get description of Airlift order
 std::string Airlift::getDescription() const {
     std::ostringstream oss;
     oss << "Airlift Order: " << *armyUnits << " army units from " << *sourceTerritory
@@ -536,41 +449,37 @@ std::string Airlift::getDescription() const {
     return oss.str();
 }
 
+//getters for Airlift
 int Airlift::getArmyUnits() const { return *armyUnits; }
 std::string Airlift::getSourceTerritory() const { return *sourceTerritory; }
 std::string Airlift::getTargetTerritory() const { return *targetTerritory; }
 
+
+
+
 // NEGOTIATE ORDER IMPLEMENTATION
 
-
+//default constructor for Negotiate
 Negotiate::Negotiate() : Order() {
     targetPlayer = new std::string("");
 }
 
-/**
- * parameterized constructor for Negotiate
- */
+//parameterized constructor for Negotiate
 Negotiate::Negotiate(const std::string& player) : Order() {
     targetPlayer = new std::string(player);
 }
 
-/**
- * copy constructor for Negotiate
- */
+//copy constructor for Negotiate
 Negotiate::Negotiate(const Negotiate& other) : Order(other) {
     targetPlayer = new std::string(*(other.targetPlayer));
 }
 
-/**
- * destructor for Negotiate
- */
+//destructor for Negotiate
 Negotiate::~Negotiate() {
     delete targetPlayer;
 }
 
-/**
- * assignment operator for Negotiate
- */
+// assignment operator for Negotiate
 Negotiate& Negotiate::operator=(const Negotiate& other) {
     if (this != &other) {
         Order::operator=(other);
@@ -580,17 +489,14 @@ Negotiate& Negotiate::operator=(const Negotiate& other) {
     return *this;
 }
 
-/**
- * validate Negotiate order
- */
+
+//validate Negotiate order
 bool Negotiate::validate() {
     if (targetPlayer->empty()) return false;
     return true;
 }
 
-/**
- * execute Negotiate order
- */
+//execute Negotiate order
 void Negotiate::execute() {
     if (validate()) {
         std::ostringstream oss;
@@ -603,36 +509,33 @@ void Negotiate::execute() {
     }
 }
 
-/**
- * clone Negotiate order
- */
+//clone Negotiate order
 Order* Negotiate::clone() const {
     return new Negotiate(*this);
 }
 
-/**
- * get description of Negotiate order
- */
+//get description of Negotiate order
 std::string Negotiate::getDescription() const {
     std::ostringstream oss;
     oss << "Negotiate Order: with player " << *targetPlayer;
     return oss.str();
 }
 
+//getters for Negotiate
 std::string Negotiate::getTargetPlayer() const { return *targetPlayer; }
+
+
+
 
 // ORDERSLIST IMPLEMENTATION
 
-/**
- * Default constructor for OrdersList
- */
+
+//default constructor for OrdersList
 OrdersList::OrdersList() {
     orders = new std::vector<Order*>();
 }
 
-/**
- * copy constructor for OrdersList
- */
+//copy constructor for OrdersList
 OrdersList::OrdersList(const OrdersList& other) {
     orders = new std::vector<Order*>();
     for (Order* order : *(other.orders)) {
@@ -640,9 +543,7 @@ OrdersList::OrdersList(const OrdersList& other) {
     }
 }
 
-/**
- * destructor for OrdersList
- */
+//destructor for OrdersList
 OrdersList::~OrdersList() {
     for (Order* order : *orders) {
         delete order;
@@ -650,9 +551,7 @@ OrdersList::~OrdersList() {
     delete orders;
 }
 
-/**
- * assignment operator for OrdersList
- */
+//assignment operator for OrdersList
 OrdersList& OrdersList::operator=(const OrdersList& other) {
     if (this != &other) {
         // clean up existing orders
@@ -669,18 +568,14 @@ OrdersList& OrdersList::operator=(const OrdersList& other) {
     return *this;
 }
 
-/**
- *    add order to the list
- */
+//add order to the list
 void OrdersList::addOrder(Order* order) {
     if (order != nullptr) {
         orders->push_back(order);
     }
 }
 
-/**
- * remove order at specified index
- */
+//remove order at specified index
 bool OrdersList::remove(int index) {
     if (index >= 0 && index < static_cast<int>(orders->size())) {
         delete (*orders)[index];
@@ -690,9 +585,7 @@ bool OrdersList::remove(int index) {
     return false;
 }
 
-/**
- * move order from one position to another
- */
+//move order from one position to another
 bool OrdersList::move(int fromIndex, int toIndex) {
     if (fromIndex >= 0 && fromIndex < static_cast<int>(orders->size()) &&
         toIndex >= 0 && toIndex < static_cast<int>(orders->size()) &&
@@ -711,9 +604,7 @@ bool OrdersList::move(int fromIndex, int toIndex) {
     return false;
 }
 
-/**
- * get order at specified index
- */
+//get order at specified index
 Order* OrdersList::getOrder(int index) const {
     if (index >= 0 && index < static_cast<int>(orders->size())) {
         return (*orders)[index];
@@ -721,23 +612,17 @@ Order* OrdersList::getOrder(int index) const {
     return nullptr;
 }
 
-/**
- * get number of orders in list
- */
+//get number of orders in list
 int OrdersList::size() const {
     return static_cast<int>(orders->size());
 }
 
-/**
- * check if list is empty
- */
+//check if list is empty
 bool OrdersList::empty() const {
     return orders->empty();
 }
 
-/**
- * execute all orders in the list
- */
+//execute all orders in the list
 void OrdersList::executeAll() {
     for (Order* order : *orders) {
         if (order && !order->isExecuted()) {
@@ -746,9 +631,7 @@ void OrdersList::executeAll() {
     }
 }
 
-/**
- * stream insertion operator for OrdersList
- */
+//stream insertion operator for OrdersList
 std::ostream& operator<<(std::ostream& os, const OrdersList& ordersList) {
     os << "OrdersList (" << ordersList.size() << " orders):\n";
     for (int i = 0; i < ordersList.size(); ++i) {
