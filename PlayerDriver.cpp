@@ -42,15 +42,19 @@ void testPlayers() {
     auto defendList = alice.toDefend();
     auto attackList = alice.toAttack();
 
-    cout << "\nTerritories to Defend: ";
+
+    //Display possible territories a player can defend and attack
+    cout << "\nTerritories to Defend (ARBITRARY): ";
     for (auto* t : defendList) cout << t->name << " ";
-    cout << "\nTerritories to Attack: ";
+    cout << "\nTerritories to Attack (ARBITRARY): ";
     for (auto* t : attackList) cout << t->name << " ";
 
     cout << "\n\n=== End of Part 2 Demo ===\n";
 }
 
+/**
 int main() {
     testPlayers();
     return 0;
 }
+*/

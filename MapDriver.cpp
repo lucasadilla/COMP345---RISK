@@ -22,6 +22,7 @@ Map testLoadMaps(string filepath)
     return Map(); // Return an empty map on failure.
 }
 
+/**
 int main() {
     // Test loading a map.
     Map map = testLoadMaps("Maps/Americas 1792.map");
@@ -30,3 +31,4 @@ int main() {
     cout << "Map is " << (valid ? "valid" : "invalid") << ".\n";
     return 0;
 }
+*/

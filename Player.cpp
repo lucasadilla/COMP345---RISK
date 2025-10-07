@@ -8,7 +8,7 @@
 #include <iostream>
 using namespace std;
 
-// Constructor
+//parameterized constructor
 Player::Player(const string& n)
         : name(new string(n)),
           ownedTerritories(new vector<Map::territoryNode*>()),
@@ -17,14 +17,14 @@ Player::Player(const string& n)
     cout << "[Player] Created player '" << *name << "'\n";
 }
 
-// Copy constructor
+//copy constructor
 Player::Player(const Player& other)
         : name(new string(*other.name)),
           ownedTerritories(new vector<Map::territoryNode*>()),
           hand(new Hand(*other.hand)),
           ordersList(new OrdersList(*other.ordersList)) {
 
-    // Copy territories (shallow)
+    //copy territories (shallow)
     for (auto* t : *other.ownedTerritories) {
         ownedTerritories->push_back(t);
     }
@@ -32,7 +32,7 @@ Player::Player(const Player& other)
     cout << "[Player] Copied player '" << *name << "'\n";
 }
 
-// Assignment operator
+//assignment operator
 Player& Player::operator=(const Player& other) {
     if (this != &other) {
         *name = *other.name;
@@ -48,16 +48,16 @@ Player& Player::operator=(const Player& other) {
     return *this;
 }
 
-// Destructor
+//destructor
 Player::~Player() {
+    cout << "Destroying player object: " << *name << "\n";
     delete name;
     delete ownedTerritories;
     delete hand;
     delete ordersList;
-    cout << "[Player] Destroyed player object\n";
 }
 
-// issueOrder — adds the given order to the player’s OrdersList
+//issueOrder() method adds the given order to the player’s OrdersList
 void Player::issueOrder(Order* order) {
     if (!order) return;
     ordersList->addOrder(order);
@@ -65,23 +65,25 @@ void Player::issueOrder(Order* order) {
          << " issued: " << *order << endl;
 }
 
-// addTerritory
+//addTerritory() method: adds a territory to a players owned territories
 void Player::addTerritory(Map::territoryNode* t) {
     if (t) ownedTerritories->push_back(t);
 }
 
-// addCard
+//addCard() method: adds a card to a player's hand
 void Player::addCard(Card* c) {
     if (c) hand->addCard(c);
 }
 
-// toDefend
+//toDefend() method: returns a list of territories that are to be defended
+//Currently arbitrary
 vector<Map::territoryNode*> Player::toDefend() const {
     cout << "[Player::toDefend] " << *name << " chooses territories to defend.\n";
     return *ownedTerritories;
 }
 
-// toAttack
+//toAttack() method: returns a list of territories that are to be attacked
+//Currently arbitrary
 vector<Map::territoryNode*> Player::toAttack() const {
     cout << "[Player::toAttack] " << *name << " chooses territories to attack.\n";
     return *ownedTerritories;
@@ -93,11 +95,11 @@ const vector<Map::territoryNode*>* Player::getOwnedTerritories() const { return 
 OrdersList* Player::getOrdersList() const { return ordersList; }
 Hand* Player::getHand() const { return hand; }
 
-// Stream insertion operator
+//stream insertion operator
 ostream& operator<<(ostream& os, const Player& p) {
-    os << "Player(" << *p.name
-       << ", territories=" << p.ownedTerritories->size()
-       << ", cards=" << p.hand->size()
-       << ", orders=" << p.ordersList->size() << ")";
+    os << "Player:" << *p.name
+       << ", Number of owned territories: " << p.ownedTerritories->size()
+       << ", Number of cards in hand: " << p.hand->size()
+       << ", Number of orders: " << p.ordersList->size();
     return os;
 }

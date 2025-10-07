@@ -60,13 +60,13 @@ void testOrdersLists() {
 
     //demonstrate move() method
     std::cout << "Demonstrating move() method:\n";
-    std::cout << "Moving order from position 0 to position 3...\n";
+    std::cout << "Moving order from index position 0 to index position 3...\n";
     ordersList->move(0, 3);
     std::cout << *ordersList << "\n";
 
     //demonstrate remove() method
     std::cout << "Demonstrating remove() method:\n";
-    std::cout << "Removing order at position 1...\n";
+    std::cout << "Removing order at index position 1...\n";
     ordersList->remove(1);
     std::cout << *ordersList << "\n";
 
@@ -76,7 +76,9 @@ void testOrdersLists() {
     std::cout << "========== End of Orders List Test ==========\n";
 }
 
+/**
 int main() {
     testOrdersLists();
     return 0;
 }
+ */

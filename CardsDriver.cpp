@@ -2,8 +2,10 @@
 
 using namespace std;
 
+/**
 int main() {
     testCards();
     return 0;
 }
+ */
 

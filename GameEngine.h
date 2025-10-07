@@ -41,6 +41,7 @@ class GameEngine {
         std::unordered_map<State,std::unordered_map<std::string, State>> transition;
 
 };
+void testGameStates();
 
 
 #endif

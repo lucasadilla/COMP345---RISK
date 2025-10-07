@@ -21,6 +21,9 @@ int main() {
     try {
         cout << ">>> PART 1: MAP & MAPLOADER <<<" << endl;
         testLoadMaps(R"(Maps/Americas 1792.map)");
+        cout << testLoadMaps(R"(Maps/Americas 1792.map)") << endl;
+        bool valid = testLoadMaps(R"(Maps/Americas 1792.map)").validate();
+        cout << "Map is " << (valid ? "valid" : "invalid") << ".\n";
         cout << "\n------------------------------------\n" << endl;
 
         cout << ">>> PART 2: PLAYER <<<" << endl;
@@ -36,7 +39,7 @@ int main() {
         cout << "\n------------------------------------\n" << endl;
 
         cout << ">>> PART 5: GAME ENGINE <<<" << endl;
-        //TODO: testGameStates();
+        testGameStates();
         cout << "\n------------------------------------\n" << endl;
 
         cout << "All module tests completed successfully!" << endl;
