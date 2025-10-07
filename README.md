@@ -1,6 +1,8 @@
 ## COMP 345 - Risk Game Project
 
 - A1 Due Date: October 7th, 2025 (MIDNIGHT)
+    - For A1 , All Drivers aside from MainDriver.cpp has the main() function commented out to allow MainDriver.cpp main() to run correctly.
+    - If oyu wish to run each Driver seperately... comment out the MainDriver.cpp main() and uncomment your desire Driver.cpp main() .    
 - A2 Due Date: TBA
 - A3 Due Date: TBA
 <br>
