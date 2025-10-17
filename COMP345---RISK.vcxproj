@@ -124,6 +124,8 @@
   <ItemGroup>
     <ClCompile Include="Cards.cpp" />
     <ClCompile Include="CardsDriver.cpp" />
+    <ClCompile Include="CommandProcessing.cpp" />
+    <ClCompile Include="CommandProcessingDriver.cpp" />
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="GameEngineDriver.cpp" />
     <ClCompile Include="MainDriver.cpp" />
@@ -137,6 +139,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cards.h" />
+    <ClInclude Include="CommandProcessing.h" />
+    <ClInclude Include="CommandProcessingDriver.h" />
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MapDriver.h" />
