@@ -1,2 +1,5 @@
-﻿  CommandProcessingDriver.cpp
+﻿  CommandProcessing.cpp
+  CommandProcessingDriver.cpp
+  MainDriver.cpp
+  Generating Code...
   COMP345---RISK.vcxproj -> G:\My Drive\Concordia\COMP 345\COMP345---RISK\x64\Debug\COMP345---RISK.exe

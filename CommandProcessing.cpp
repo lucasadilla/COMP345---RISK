@@ -80,6 +80,48 @@ CommandProcessor::CommandProcessor()
     currentState = State::Start;
 }
 
+CommandProcessor::CommandProcessor(const CommandProcessor& other)
+{
+    currentState = other.currentState;
+    // Deep copy of commands
+    for (Command* cmd : other.commands)
+    {
+        commands.push_back(new Command(*cmd));
+    }
+}
+
+CommandProcessor& CommandProcessor::operator=(const CommandProcessor& other)
+{
+    if (this != &other)
+    {
+        // Clean up existing commands
+        for (Command* cmd : commands)
+        {
+            delete cmd;
+        }
+        commands.clear();
+
+        currentState = other.currentState;
+        // Deep copy of commands
+        for (Command* cmd : other.commands)
+        {
+            commands.push_back(new Command(*cmd));
+        }
+    }
+    return *this;
+}
+
+ostream& operator<<(ostream& os, const CommandProcessor& cp)
+{
+    os << "CommandProcessor State: " << GameEngine::name(cp.currentState) << endl;
+    os << "Commands:" << endl;
+    for (const Command* cmd : cp.commands)
+    {
+        os << *cmd << endl;
+    }
+    return os;
+}
+
 CommandProcessor::~CommandProcessor()
 {
     // Clean up allocated Command objects.
@@ -208,14 +250,15 @@ string* CommandProcessor::readCommand()
     return inputs;
 }
 
+// Save a command to the list.
 void CommandProcessor::saveCommand(Command* command)
 {
     commands.push_back(command);
 }
 
+// Validate if a command is allowed in the current state.
 bool CommandProcessor::validateCommand(CommandTypes commandType)
 {
-    // Verify if the command is valid in the current state.
     bool validInState = false;
     switch (commandType) {
     case LoadMap:
@@ -242,10 +285,18 @@ bool CommandProcessor::validateCommand(CommandTypes commandType)
 
 FileCommandProcessorAdapter::FileCommandProcessorAdapter(const string& filepath)
 {
+    filePath = filepath;
     inputFile.open(filepath);
     if (!inputFile.is_open()) {
         throw runtime_error("Could not open command file: " + filepath);
     }
+}
+
+ostream& operator<<(ostream& os, const FileCommandProcessorAdapter& fcp)
+{
+    os << "FileCommandProcessorAdapter file:" << fcp.filePath << endl;
+    os << static_cast<const CommandProcessor&>(fcp);
+    return os;
 }
 
 FileCommandProcessorAdapter::~FileCommandProcessorAdapter()
@@ -255,6 +306,7 @@ FileCommandProcessorAdapter::~FileCommandProcessorAdapter()
     }
 }
 
+// Read a command from the file.
 string* FileCommandProcessorAdapter::readCommand()
 {
     static string inputs[2];
