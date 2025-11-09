@@ -16,6 +16,7 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <system_error>
 
 namespace fs = std::filesystem;
 
@@ -76,6 +77,82 @@ std::string findMatchingMapName(const std::vector<std::string>& availableMaps, c
     return "";
 }
 
+fs::path resolveMapPath(const std::vector<std::string>& availableMaps,
+                        const std::string& requested,
+                        const std::string& mapDirectory)
+{
+    const std::string trimmed = trim(requested);
+    if (trimmed.empty())
+    {
+        return {};
+    }
+
+    auto validateCandidate = [](const fs::path& candidate) -> fs::path
+    {
+        if (candidate.empty())
+        {
+            return {};
+        }
+
+        std::error_code ec;
+        if (!fs::exists(candidate, ec) || !fs::is_regular_file(candidate, ec))
+        {
+            return {};
+        }
+
+        const auto extension = toLowerCopy(candidate.extension().string());
+        if (extension != ".map")
+        {
+            return {};
+        }
+
+        return candidate;
+    };
+
+    const fs::path direct(trimmed);
+    if (auto candidate = validateCandidate(direct); !candidate.empty())
+    {
+        return candidate;
+    }
+
+    if (direct.extension().empty())
+    {
+        fs::path withExtension = direct;
+        withExtension.replace_extension(".map");
+        if (auto candidate = validateCandidate(withExtension); !candidate.empty())
+        {
+            return candidate;
+        }
+    }
+
+    if (!mapDirectory.empty())
+    {
+        fs::path fromDirectory = fs::path(mapDirectory) / direct;
+        if (auto candidate = validateCandidate(fromDirectory); !candidate.empty())
+        {
+            return candidate;
+        }
+
+        if (fromDirectory.extension().empty())
+        {
+            fs::path withExtension = fromDirectory;
+            withExtension.replace_extension(".map");
+            if (auto candidate = validateCandidate(withExtension); !candidate.empty())
+            {
+                return candidate;
+            }
+        }
+    }
+
+    const std::string match = findMatchingMapName(availableMaps, trimmed);
+    if (!match.empty())
+    {
+        return fs::path(mapDirectory) / match;
+    }
+
+    return {};
+}
+
 }
 
 
@@ -86,7 +163,7 @@ GameEngine::GameEngine()
       mapValidated(false),
       loadedMap(nullptr),
       players(),
-      deck(std::make_unique<Deck>(50))
+      deck(std::make_unique<Deck>(STARTING_DECK_SIZE))
 {
 
     // startup
@@ -160,7 +237,7 @@ bool GameEngine::apply(const std::string& cmd) {
 void GameEngine::startupPhase(CommandProcessor& commandProcessor, const std::string& mapDirectory)
 {
     std::cout << "=== Game Startup Phase ===\n";
-    auto availableMaps = collectMapFiles(mapDirectory);
+    std::vector<std::string> availableMaps = collectMapFiles(mapDirectory);
 
     if (availableMaps.empty())
     {
@@ -175,17 +252,18 @@ void GameEngine::startupPhase(CommandProcessor& commandProcessor, const std::str
         }
     }
 
+    std::cout << "[StartupPhase] Commands: loadmap <file>, validatemap, addplayer <name>, gamestart\n";
+
     commandProcessor.setState(state());
 
     auto loadMapCommand = [&](const std::string& parameter) -> bool {
-        const std::string targetName = findMatchingMapName(availableMaps, parameter);
-        if (targetName.empty())
+        const fs::path candidatePath = resolveMapPath(availableMaps, parameter, mapDirectory);
+        if (candidatePath.empty())
         {
             std::cout << "[StartupPhase] Map '" << parameter << "' not found in directory '" << mapDirectory << "'.\n";
             return false;
         }
 
-        fs::path candidatePath = fs::path(mapDirectory) / targetName;
         try
         {
             MapLoader loader(candidatePath.string());
@@ -193,8 +271,10 @@ void GameEngine::startupPhase(CommandProcessor& commandProcessor, const std::str
             mapLoaded = true;
             mapValidated = false;
             players.clear();
-            deck = std::make_unique<Deck>(50);
-            std::cout << "[StartupPhase] Loaded map: " << loadedMap->getName() << "\n";
+            deck = std::make_unique<Deck>(STARTING_DECK_SIZE);
+            availableMaps = collectMapFiles(mapDirectory);
+            std::cout << "[StartupPhase] Loaded map: " << loadedMap->getName()
+                      << " (" << candidatePath.filename().string() << ")\n";
             return true;
         }
         catch (const std::exception& e)
@@ -233,9 +313,9 @@ void GameEngine::startupPhase(CommandProcessor& commandProcessor, const std::str
             return false;
         }
 
-        if (players.size() >= 6)
+        if (players.size() >= MAX_PLAYERS)
         {
-            std::cout << "[StartupPhase] Cannot add more than 6 players.\n";
+            std::cout << "[StartupPhase] Cannot add more than " << MAX_PLAYERS << " players.\n";
             return false;
         }
 
@@ -261,15 +341,15 @@ void GameEngine::startupPhase(CommandProcessor& commandProcessor, const std::str
             return false;
         }
 
-        if (players.size() < 2)
+        if (players.size() < MIN_PLAYERS)
         {
-            std::cout << "[StartupPhase] At least 2 players are required to start the game.\n";
+            std::cout << "[StartupPhase] At least " << MIN_PLAYERS << " players are required to start the game.\n";
             return false;
         }
 
-        if (players.size() > 6)
+        if (players.size() > MAX_PLAYERS)
         {
-            std::cout << "[StartupPhase] A maximum of 6 players is supported.\n";
+            std::cout << "[StartupPhase] A maximum of " << MAX_PLAYERS << " players is supported.\n";
             return false;
         }
 
@@ -301,12 +381,12 @@ void GameEngine::startupPhase(CommandProcessor& commandProcessor, const std::str
             players[i % players.size()]->addTerritory(territory);
         }
 
-        deck = std::make_unique<Deck>(50);
+        deck = std::make_unique<Deck>(STARTING_DECK_SIZE);
 
         for (auto& player : players)
         {
-            player->setReinforcementPool(50);
-            for (int i = 0; i < 2; ++i)
+            player->setReinforcementPool(INITIAL_REINFORCEMENT_POOL);
+            for (int i = 0; i < INITIAL_CARD_DRAW; ++i)
             {
                 if (Card* card = deck->draw())
                 {
@@ -318,7 +398,9 @@ void GameEngine::startupPhase(CommandProcessor& commandProcessor, const std::str
         std::cout << "[StartupPhase] Player order for this game:\n";
         for (size_t i = 0; i < players.size(); ++i)
         {
-            std::cout << "  " << (i + 1) << ". " << players[i]->getName() << "\n";
+            std::cout << "  " << (i + 1) << ". " << players[i]->getName()
+                      << " (Reinforcements: " << players[i]->getReinforcementPool()
+                      << ", Territories: " << players[i]->getOwnedTerritories()->size() << ")\n";
         }
 
         std::cout << "[StartupPhase] Territories distributed, reinforcements assigned, and initial cards drawn.\n";

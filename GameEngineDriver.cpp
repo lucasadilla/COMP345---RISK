@@ -30,6 +30,8 @@ void testStartupPhase()
 {
     std::cout << "=== GameEngine Startup Phase Driver ===\n";
     std::cout << "Provide commands via '-console' or '-file <path>'. Default is console input.\n";
+    std::cout << "Startup commands: loadmap <map>, validatemap, addplayer <name>, gamestart.\n";
+    std::cout << "When using console mode, type commands exactly as listed above.\n";
     std::cout << "> ";
 
     std::string modeLine;
