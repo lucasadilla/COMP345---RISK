@@ -49,6 +49,12 @@ class GameEngine {
         bool isMapValidated() const { return mapValidated; }
 
     private:
+        static constexpr int INITIAL_REINFORCEMENT_POOL = 50;
+        static constexpr int INITIAL_CARD_DRAW = 2;
+        static constexpr int STARTING_DECK_SIZE = 50;
+        static constexpr size_t MIN_PLAYERS = 2;
+        static constexpr size_t MAX_PLAYERS = 6;
+
         State current;
 
         // transitions[current_state][command] = next_state
