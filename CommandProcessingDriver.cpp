@@ -49,4 +49,7 @@ void testCommandProcessor(int argc, char* argv[])
         cout << "Saved Command: " << *cmd << endl;
         cout << "Current State updated to: " << GameEngine::name(cp->getState()) << endl;
     }
+
+    cout << "Final State reached. Summary of commands:" << endl;
+    cout << *cp << endl;
 }

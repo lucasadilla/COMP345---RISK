@@ -43,6 +43,9 @@ class CommandProcessor
 {
     public:
         CommandProcessor();
+        CommandProcessor(const CommandProcessor& other);
+        CommandProcessor& operator=(const CommandProcessor& other);
+        friend ostream& operator<<(ostream& os, const CommandProcessor& cp);
         virtual ~CommandProcessor();
         Command* getCommand();
         void setState(State state);
@@ -60,10 +63,14 @@ class FileCommandProcessorAdapter : public CommandProcessor
 {
     public:
         FileCommandProcessorAdapter(const string& filepath);
+        FileCommandProcessorAdapter(const FileCommandProcessorAdapter& other) = delete;
+        FileCommandProcessorAdapter& operator=(const FileCommandProcessorAdapter& other) = delete;
+        friend ostream& operator<<(ostream& os, const FileCommandProcessorAdapter& fcp);
         ~FileCommandProcessorAdapter() override;
     protected:
         string* readCommand() override;
     private:
+        string filePath;
         std::ifstream inputFile;
 };
 
