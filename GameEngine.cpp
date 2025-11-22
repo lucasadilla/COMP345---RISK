@@ -6,6 +6,7 @@
 #include "CommandProcessing.h"
 #include "MapLoader.h"
 #include "Player.h"
+#include "PlayerStrategies.h"
 #include "Map.h"
 #include "Cards.h"
 #include <algorithm>
@@ -330,7 +331,9 @@ void GameEngine::startupPhase(CommandProcessor& commandProcessor, const std::str
         }
 
         players.push_back(std::make_unique<Player>(playerName));
-        std::cout << "[StartupPhase] Added player: " << playerName << "\n";
+        // Assign default Human strategy to new players
+        players.back()->setStrategy(new HumanPlayerStrategy(players.back().get()));
+        std::cout << "[StartupPhase] Added player: " << playerName << " with Human strategy\n";
         return true;
     };
 
@@ -404,6 +407,15 @@ void GameEngine::startupPhase(CommandProcessor& commandProcessor, const std::str
         }
 
         std::cout << "[StartupPhase] Territories distributed, reinforcements assigned, and initial cards drawn.\n";
+        
+        // Ensure all players have strategies assigned (default to Human if not set)
+        for (auto& player : players) {
+            if (!player->getStrategy()) {
+                player->setStrategy(new HumanPlayerStrategy(player.get()));
+                std::cout << "[StartupPhase] Assigned default Human strategy to " << player->getName() << "\n";
+            }
+        }
+        
         return true;
     };
 
@@ -479,6 +491,110 @@ void GameEngine::startupPhase(CommandProcessor& commandProcessor, const std::str
             break;
         }
     }
+}
+
+void GameEngine::assignStrategyToPlayer(size_t playerIndex, const std::string& strategyName) {
+    if (playerIndex >= players.size()) {
+        std::cout << "[GameEngine] Invalid player index: " << playerIndex << "\n";
+        return;
+    }
+
+    Player* player = players[playerIndex].get();
+    PlayerStrategy* newStrategy = nullptr;
+
+    std::string lowerName = strategyName;
+    std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+
+    if (lowerName == "human") {
+        newStrategy = new HumanPlayerStrategy(player);
+    } else if (lowerName == "aggressive") {
+        newStrategy = new AggressivePlayerStrategy(player);
+    } else if (lowerName == "benevolent") {
+        newStrategy = new BenevolentPlayerStrategy(player);
+    } else if (lowerName == "neutral") {
+        newStrategy = new NeutralPlayerStrategy(player);
+    } else if (lowerName == "cheater") {
+        newStrategy = new CheaterPlayerStrategy(player);
+    } else {
+        std::cout << "[GameEngine] Unknown strategy name: " << strategyName << ". Using Human strategy.\n";
+        newStrategy = new HumanPlayerStrategy(player);
+    }
+
+    player->setStrategy(newStrategy);
+    std::cout << "[GameEngine] Assigned " << strategyName << " strategy to " << player->getName() << "\n";
+}
+
+void GameEngine::mainGameLoop(CommandProcessor& commandProcessor) {
+    std::cout << "\n=== Main Game Loop Started ===\n";
+
+    while (state() != State::Finished && state() != State::Win) {
+        if (state() == State::AssignReinforcement) {
+            std::cout << "\n--- Reinforcement Phase ---\n";
+            // Calculate and assign reinforcements based on territories owned
+            // For now, we'll use a simple calculation
+            for (auto& player : players) {
+                int territories = static_cast<int>(player->getOwnedTerritories()->size());
+                int reinforcements = std::max(3, territories / 3);  // At least 3, or territories/3
+                player->addReinforcements(reinforcements);
+                std::cout << "[GameEngine] " << player->getName() << " receives " 
+                          << reinforcements << " reinforcements (Total: " 
+                          << player->getReinforcementPool() << ")\n";
+            }
+            apply("issueorder");
+        } else if (state() == State::IssueOrders) {
+            std::cout << "\n--- Issue Orders Phase ---\n";
+            // Each player issues orders using their strategy
+            for (auto& player : players) {
+                if (player->getStrategy()) {
+                    player->issueOrder();  // This delegates to the strategy
+                } else {
+                    std::cout << "[GameEngine] Warning: " << player->getName() 
+                              << " has no strategy assigned.\n";
+                }
+            }
+            
+            // Check if we should continue or end order issuing
+            std::cout << "\nAll players have issued orders. Type 'endissueorders' to proceed: ";
+            std::string cmd;
+            std::getline(std::cin, cmd);
+            if (cmd == "endissueorders" || cmd == "done") {
+                apply("endissueorders");
+            }
+        } else if (state() == State::ExecuteOrders) {
+            std::cout << "\n--- Execute Orders Phase ---\n";
+            // Execute all orders for all players
+            for (auto& player : players) {
+                OrdersList* orders = player->getOrdersList();
+                if (orders && !orders->empty()) {
+                    std::cout << "[GameEngine] Executing orders for " << player->getName() << "\n";
+                    orders->executeAll();
+                }
+            }
+            
+            std::cout << "\nAll orders executed. Type 'endexecorders' to proceed: ";
+            std::string cmd;
+            std::getline(std::cin, cmd);
+            if (cmd == "endexecorders" || cmd == "done") {
+                apply("endexecorders");
+            }
+        } else {
+            // Handle other states or wait for commands
+            Command* command = nullptr;
+            try {
+                command = commandProcessor.getCommand();
+            } catch (const std::exception& e) {
+                std::cout << "[GameEngine] Command processing error: " << e.what() << "\n";
+                break;
+            }
+
+            if (command) {
+                // Process command if needed
+                std::cout << "[GameEngine] Received command: " << command->getType() << "\n";
+            }
+        }
+    }
+
+    std::cout << "\n=== Game Loop Ended ===\n";
 }
 
 void testGameStates() {

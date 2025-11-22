@@ -2,6 +2,7 @@
 // Created by Rahath on 2025-09-09.
 //
 #include "Player.h"
+#include "PlayerStrategies.h"
 #include "Orders.h"
 #include "Cards.h"
 #include <algorithm>
@@ -14,7 +15,8 @@ Player::Player(const string& n)
           ownedTerritories(new vector<Map::territoryNode*>()),
           hand(new Hand()),
           ordersList(new OrdersList()),
-          reinforcementPool(0) {
+          reinforcementPool(0),
+          strategy(nullptr) {
     cout << "[Player] Created player '" << *name << "'\n";
 }
 
@@ -24,11 +26,17 @@ Player::Player(const Player& other)
           ownedTerritories(new vector<Map::territoryNode*>()),
           hand(new Hand(*other.hand)),
           ordersList(new OrdersList(*other.ordersList)),
-          reinforcementPool(other.reinforcementPool) {
+          reinforcementPool(other.reinforcementPool),
+          strategy(other.strategy ? other.strategy->clone() : nullptr) {
 
     //copy territories (shallow)
     for (auto* t : *other.ownedTerritories) {
         ownedTerritories->push_back(t);
+    }
+    
+    // Update strategy's player pointer to point to this player
+    if (strategy) {
+        strategy->setPlayer(this);
     }
 
     cout << "[Player] Copied player '" << *name << "'\n";
@@ -42,11 +50,13 @@ Player& Player::operator=(const Player& other) {
         delete ownedTerritories;
         delete hand;
         delete ordersList;
+        delete strategy;
 
         ownedTerritories = new vector<Map::territoryNode*>(*other.ownedTerritories);
         hand = new Hand(*other.hand);
         ordersList = new OrdersList(*other.ordersList);
         reinforcementPool = other.reinforcementPool;
+        strategy = other.strategy ? other.strategy->clone() : nullptr;
     }
     return *this;
 }
@@ -58,14 +68,32 @@ Player::~Player() {
     delete ownedTerritories;
     delete hand;
     delete ordersList;
+    delete strategy;
 }
 
-//issueOrder() method adds the given order to the player’s OrdersList
+//issueOrder(Order*) method: directly adds the given order to the player's OrdersList
+//This is used internally by strategies to actually add orders
 void Player::issueOrder(Order* order) {
     if (!order) return;
     ordersList->addOrder(order);
     cout << "[Player::issueOrder] " << *name
          << " issued: " << *order << endl;
+}
+
+// Strategy management methods
+void Player::setStrategy(PlayerStrategy* s) {
+    if (strategy != s) {
+        delete strategy;
+        strategy = s;
+        // Update strategy's player pointer to point to this player
+        if (strategy) {
+            strategy->setPlayer(this);
+        }
+    }
+}
+
+PlayerStrategy* Player::getStrategy() const {
+    return strategy;
 }
 
 //addTerritory() method: adds a territory to a players owned territories
@@ -78,18 +106,33 @@ void Player::addCard(Card* c) {
     if (c) hand->addCard(c);
 }
 
-//toDefend() method: returns a list of territories that are to be defended
-//Currently arbitrary
+//toDefend() method: delegates to strategy
 vector<Map::territoryNode*> Player::toDefend() const {
-    cout << "[Player::toDefend] " << *name << " chooses territories to defend.\n";
+    if (strategy) {
+        return strategy->toDefend();
+    }
+    // Fallback if no strategy is set
+    cout << "[Player::toDefend] " << *name << " has no strategy, returning all owned territories.\n";
     return *ownedTerritories;
 }
 
-//toAttack() method: returns a list of territories that are to be attacked
-//Currently arbitrary
+//toAttack() method: delegates to strategy
 vector<Map::territoryNode*> Player::toAttack() const {
-    cout << "[Player::toAttack] " << *name << " chooses territories to attack.\n";
-    return *ownedTerritories;
+    if (strategy) {
+        return strategy->toAttack();
+    }
+    // Fallback if no strategy is set
+    cout << "[Player::toAttack] " << *name << " has no strategy, returning empty list.\n";
+    return {};
+}
+
+//issueOrder() method: delegates to strategy's issueOrder()
+void Player::issueOrder() {
+    if (strategy) {
+        strategy->issueOrder();
+    } else {
+        cout << "[Player::issueOrder] " << *name << " has no strategy, cannot issue orders.\n";
+    }
 }
 
 // Getters

@@ -15,6 +15,7 @@ class Order;
 class OrdersList;
 class Hand;
 class Card;
+class PlayerStrategy;
 
 using namespace std;
 
@@ -25,6 +26,7 @@ private:
     Hand* hand;
     OrdersList* ordersList;
     int reinforcementPool;
+    PlayerStrategy* strategy;  // Strategy pattern: player behavior
 
 public:
     Player(const string& n = "Player");
@@ -32,9 +34,17 @@ public:
     Player& operator=(const Player& other);
     ~Player();
 
-    vector<Map::territoryNode*> toDefend() const;
-    vector<Map::territoryNode*> toAttack() const;
+    // Strategy pattern delegation methods
+    void issueOrder();  // Delegates to strategy's issueOrder()
+    vector<Map::territoryNode*> toDefend() const;  // Delegates to strategy
+    vector<Map::territoryNode*> toAttack() const;  // Delegates to strategy
+    
+    // Direct order issuing (used internally by strategies)
     void issueOrder(Order* order);
+    
+    // Strategy management
+    void setStrategy(PlayerStrategy* s);
+    PlayerStrategy* getStrategy() const;
 
     void addTerritory(Map::territoryNode* t);
     void addCard(Card* c);
