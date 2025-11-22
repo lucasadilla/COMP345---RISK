@@ -11,6 +11,7 @@
 #include <memory>
 #include <vector>
 #include "Player.h"
+#include "PlayerStrategies.h"
 #include "Map.h"
 #include "Cards.h"
 
@@ -42,11 +43,24 @@ class GameEngine {
         State state() const { return current; }
 
         void startupPhase(CommandProcessor& commandProcessor, const std::string& mapDirectory = "Maps");
+        
+        /**
+         * Main game loop that handles reinforcement, order issuing, and order execution.
+         * This method should be called after startupPhase completes.
+         */
+        void mainGameLoop(CommandProcessor& commandProcessor);
 
         const std::vector<std::unique_ptr<Player>>& getPlayers() const { return players; }
         const Map* getLoadedMap() const { return loadedMap.get(); }
         bool isMapLoaded() const { return mapLoaded; }
         bool isMapValidated() const { return mapValidated; }
+        
+        /**
+         * Assigns a strategy to a player.
+         * @param playerIndex Index of the player in the players vector
+         * @param strategyName Name of the strategy ("Human", "Aggressive", "Benevolent", "Neutral", "Cheater")
+         */
+        void assignStrategyToPlayer(size_t playerIndex, const std::string& strategyName);
 
     private:
         static constexpr int INITIAL_REINFORCEMENT_POOL = 50;
